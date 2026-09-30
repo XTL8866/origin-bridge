@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "origin-bridge"
+version = "0.1.0"
+description = "用 Python 通过 COM 自动化控制 OriginLab Origin：数据读写、统计、绘图与界面语言切换"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "XTL8866" },
+]
+maintainers = [
+    { name = "XTL8866" },
+]
+keywords = [
+    "origin",
+    "originlab",
+    "com",
+    "automation",
+    "labtalk",
+    "scientific-computing",
+    "plotting",
+    "win32com",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "pywin32>=300; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "build>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/XTL8866/origin-bridge"
+Repository = "https://github.com/XTL8866/origin-bridge"
+Issues = "https://github.com/XTL8866/origin-bridge/issues"
+Changelog = "https://github.com/XTL8866/origin-bridge/blob/main/README.md"
+
+[project.scripts]
+origin-cli = "origin_bridge.cli:main"
+
+[tool.setuptools]
+packages = ["origin_bridge"]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -1,0 +1,77 @@
+# --- Python 通用 ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- 虚拟环境 ---
+venv/
+env/
+ENV/
+.venv/
+.conda/
+
+# --- 测试与覆盖率 ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# --- 类型检查 / 构建缓存 ---
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.pytype/
+
+# --- 编辑器 / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- 操作系统 ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Origin 数据与产物 ---
+# 项目文件
+*.opju
+*.opj
+*.ogwu
+*.ois
+# Origin 自动生成的临时/锁文件
+*.tmp
+*.cn1
+*.cn2
+# 示例脚本的输出
+examples/output_*
+examples/batch_output/
+examples/sample_data.csv
+tests/_smoke_output.opju
+
+# --- 本地日志 ---
+*.log
