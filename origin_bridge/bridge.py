@@ -87,6 +87,28 @@ PLOT_TYPES: Dict[str, int] = {
     "area": 205,          # 面积图
 }
 
+#: 图片扩展名 → ``expGraph`` 的 ``type`` 参数值。
+#:
+#: 注意：``type`` 接受的是**字符串**而非序号。序号 1 对应 BMP 而不是 PNG，
+#: 传错会静默导出成别的格式。
+EXPORT_TYPES: Dict[str, str] = {
+    ".png": "png",
+    ".jpg": "jpg",
+    ".jpeg": "jpg",
+    ".tif": "tif",
+    ".tiff": "tif",
+    ".bmp": "bmp",
+    ".gif": "gif",
+    ".eps": "eps",
+    ".pdf": "pdf",
+    ".svg": "svg",
+    ".emf": "emf",
+    ".wmf": "wmf",
+    ".pcx": "pcx",
+    ".tga": "tga",
+    ".psd": "psd",
+}
+
 #: Origin 内部标识「缺失值」(NANUM) 的浮点哨兵值。
 #:
 #: COM 接口不会把缺失值转成 Python 的 ``None``，而是返回这个魔数。
@@ -822,15 +844,55 @@ class OriginBridge:
                 ) + "\n")
         return os.path.exists(path)
 
-    def export_image(self, path: str, wait: float = 2.5) -> bool:
+    def export_image(self, path: str, page: Optional[str] = None,
+                     width: Optional[float] = None, unit: int = 2,
+                     dpi: Optional[float] = None,
+                     wait: float = 2.5) -> bool:
         """
-        把当前图形窗口导出为图片。
+        把图形窗口导出为图片。
 
-        :param path: 目标路径，扩展名决定格式（``.png`` / ``.jpg`` / ``.tif``…）。
+        :param path: 目标路径，扩展名决定格式（``.png`` / ``.jpg`` / ``.tif``…
+                     ，受 :data:`EXPORT_TYPES` 支持）。
+        :param page: 要导出的图形窗口名；``None`` 表示当前活动窗口。
+        :param width: 导出宽度；``None`` 表示沿用 Origin 当前设置。
+        :param unit: ``width`` 的单位。``0`` 英寸 / ``1`` 厘米 / ``2`` 像素 / ``3`` 页面比例。
+        :param dpi: 位图分辨率（仅对 png/jpg/tif 等栅格格式有效）。
+        :return: 文件是否成功生成。
+
+        .. warning::
+            ``expGraph`` 的 ``type`` 是**字符串**（``png`` / ``tif``），不是序号；
+            且 ``path`` 必须是**目录**、文件名由 ``filename`` 单独给出。
+            旧实现把完整文件路径塞进 ``path`` 并传 ``type:=1``，结果既不报错
+            也不生成文件（``type:=1`` 实际是 BMP）。此处已修正。
         """
         path = os.path.abspath(path)
-        parent = os.path.dirname(path)
-        if parent and not os.path.isdir(parent):
-            os.makedirs(parent, exist_ok=True)
-        self.execute('expGraph type:=1 path:="%s";' % path, wait=wait)
+        folder, filename = os.path.split(path)
+        stem, ext = os.path.splitext(filename)
+        img_type = EXPORT_TYPES.get(ext.lower())
+        if img_type is None:
+            raise ValueError(
+                "不支持的图片格式 %r，可选：%s"
+                % (ext or "(无扩展名)", ", ".join(sorted(EXPORT_TYPES)))
+            )
+        if folder and not os.path.isdir(folder):
+            os.makedirs(folder, exist_ok=True)
+        # 先删目标文件：若已存在，expGraph 可能弹出覆盖确认框而阻塞
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+        if page:
+            self.execute("win -a %s;" % page, wait=0.8)
+
+        cmd = 'expGraph type:=%s path:="%s" filename:="%s"' % (
+            img_type, folder, stem
+        )
+        if width:
+            cmd += " tr1.unit:=%d tr1.width:=%g" % (unit, width)
+        if dpi:
+            cmd += " tr2.%s.dotsperinch:=%g" % (img_type, dpi)
+        self.execute(cmd + ";", wait=wait)
         return os.path.exists(path)
+

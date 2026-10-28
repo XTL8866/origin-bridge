@@ -36,6 +36,7 @@ origin-bridge — 用 Python 通过 COM 自动化控制 OriginLab Origin
 from .bridge import (
     PROG_ID,
     PLOT_TYPES,
+    EXPORT_TYPES,
     ColumnStats,
     OriginBridge,
     OriginCommandError,
@@ -75,6 +76,7 @@ __all__ = [
     "ColumnStats",
     "PROG_ID",
     "PLOT_TYPES",
+    "EXPORT_TYPES",
     # 异常
     "OriginError",
     "OriginNotFoundError",

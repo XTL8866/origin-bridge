@@ -190,9 +190,24 @@ with OriginBridge() as ob:
 | `stats(col)` | 返回 `ColumnStats`（count/total/mean/min/max/sd/median） |
 | `plot(x_col, y_col, kind="line")` | 绘图。`kind` 见下表 |
 | `save(path)` | 保存项目为 `.opju` / `.opj` |
-| `export_image(path)` | 导出当前图窗口为图片 |
+| `export_image(path, page=None, width=None, unit=2, dpi=None)` | 导出图窗口为图片，扩展名决定格式 |
 
 支持的图形类型：`line`、`scatter`、`line_symbol`、`column`、`bar`、`area`。
+
+`plot()` 只画单条 Y 列。**多曲线**要用列区间语法（X 为第 1 列，Y 取第 2~4 列）：
+
+```python
+ob.execute('plotxy iy:=(1,2:4) plot:=200 ogl:=[<new>];')
+```
+
+导出图片时，`path` 的扩展名决定格式（`png` / `tif` / `jpg` / `pdf` / `eps` 等，
+见 `EXPORT_TYPES`）；`width` + `unit`（0 英寸 / 1 厘米 / 2 像素）控制尺寸，
+`dpi` 控制栅格分辨率：
+
+```python
+ob.export_image(r"D:\out\fig.png", width=1600, unit=2, dpi=300)
+```
+
 
 #### 执行原生 LabTalk
 
@@ -361,6 +376,7 @@ app.Evaluate("stddev(col(A))")    # 2.138089935299395 ← 正确！
 | --- | --- | --- |
 | LabTalk `save -i` | 执行**不报错**，但**不生成文件** | 用 COM 的 `app.Save(绝对路径)` |
 | LabTalk `expASC` | 本次环境中未能生成文件 | 改用 `GetWorksheet` 读数据 + Python 写文件 |
+| LabTalk `expGraph` | `type:=1` 实际导出 **BMP** 而非 PNG；`path:=` 若传完整文件路径，则**既不报错也不生成文件** | `type` 要传**字符串**（`png` / `tif` / `jpg`）；`path` 只传**目录**，文件名用 `filename` 单独给 |
 
 ### 六、批量读取
 

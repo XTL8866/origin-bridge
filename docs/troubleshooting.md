@@ -249,6 +249,42 @@ LabTalk 的 `expASC` 在部分环境中不工作。
 ob.export_ascii(r"D:\out.txt")
 ```
 
+### 症状：`export_image` 不生成图片，或生成的格式不对
+
+**原因**：`expGraph` 有两个容易踩的参数语义。
+
+```python
+# ❌ path 传了完整文件路径，结果既不报错也不生成文件
+ob.execute('expGraph type:=1 path:="D:\\out\\fig.png";')
+
+# ✅ path 只传目录，文件名用 filename 单独给；type 传格式字符串
+ob.execute('expGraph type:=png path:="D:\\out" filename:="fig";')
+```
+
+两个要点：
+
+1. **`type` 是字符串而非序号**：`type:=1` 对应 **BMP**，不是 PNG。
+   可选值见 `png` / `tif` / `jpg` / `pdf` / `eps` / `svg` 等（完整映射在 `EXPORT_TYPES`）。
+2. **`path` 是目录**，不是文件路径。文件名（不含扩展名）由 `filename` 给出。
+
+本库的 `export_image()` 已按上述规则封装，并会先删除同名旧文件，
+避免 `expGraph` 弹出覆盖确认框导致**卡死**：
+
+```python
+ob.export_image(r"D:\out\fig.png", width=1600, unit=2, dpi=300)
+```
+
+### 症状：导出的图片上有 `demo` 水印
+
+这与本库无关 —— 是 **Origin 以评估/演示模式运行**的标志。
+检查项：
+
+1. Origin 许可证文件是否有效（`C:\ProgramData\OriginLab\License\orglab.lic`）
+2. 由 COM 自动拉起的**隐藏实例**是否加载了许可证（可在 GUI 里手动打开同一图形对比）
+3. 许可证是否已过期
+
+水印属于授权层面的问题，本库不做任何绕过处理。
+
 ---
 
 ## 六、性能问题
